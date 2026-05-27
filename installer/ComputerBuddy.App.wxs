@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Computer Buddy"
            Manufacturer="Computer Buddy"
-           Version="1.0.0"
+           Version="1.0.1"
            UpgradeCode="3D5D2511-3F7E-42D8-9D07-1A9B3C9B091D"
            InstallerVersion="500"
            Compressed="yes"
@@ -13,6 +13,8 @@
     <Feature Id="MainFeature" Title="Computer Buddy" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
+
+    <Property Id="STARTWITHWINDOWS" Value="1" />
 
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Computer Buddy" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
@@ -52,6 +54,15 @@
           <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuDir" Name="Computer Buddy" WorkingDirectory="INSTALLFOLDER" />
         </File>
         <RemoveFolder Id="RemoveProgramMenuDir" Directory="ProgramMenuDir" On="uninstall" />
+      </Component>
+
+      <Component Id="cmp_RunAtStartup" Guid="*" Condition="STARTWITHWINDOWS = 1">
+        <RegistryValue Root="HKLM"
+                       Key="Software\Microsoft\Windows\CurrentVersion\Run"
+                       Name="ComputerBuddy"
+                       Value="&quot;[INSTALLFOLDER]ComputerBuddy.App.exe&quot;"
+                       Type="string"
+                       KeyPath="yes" />
       </Component>
 
       <Component Id="cmp_D3DCompiler" Guid="*">
