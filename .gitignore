@@ -10,3 +10,6 @@ obj/
 *.snk
 artifacts/
 TestResults/
+publish/
+*.msi
+*.zip
