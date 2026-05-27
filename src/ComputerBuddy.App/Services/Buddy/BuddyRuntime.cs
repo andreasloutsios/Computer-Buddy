@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Media.Imaging;
 using ComputerBuddy.App.Models;
 using ComputerBuddy.App.Services.Sprites;
@@ -35,21 +36,22 @@ public sealed class BuddyRuntime
 
     public BitmapSource CurrentFrame => _currentAnim.Frames[_frameIndex];
 
-    public void SetInitialPosition(double screenWidthDip, double screenHeightDip)
+    public void SetInitialPosition(Rect workAreaDip)
     {
-        X = Math.Max(0, (screenWidthDip - Width) / 2.0);
-        Y = Math.Max(0, screenHeightDip - Height);
+        var x = workAreaDip.Left + Math.Max(0, (workAreaDip.Width - Width) / 2.0);
+        X = Clamp(x, workAreaDip.Left, workAreaDip.Right - Width);
+        Y = Clamp(workAreaDip.Bottom - Height, workAreaDip.Top, workAreaDip.Bottom - Height);
     }
 
-    public void SetPosition(double xDip, double screenWidthDip, double screenHeightDip)
+    public void SetPosition(double xDip, Rect workAreaDip)
     {
-        X = Math.Max(0, Math.Min(xDip, Math.Max(0, screenWidthDip - Width)));
-        Y = Math.Max(0, screenHeightDip - Height);
+        X = Clamp(xDip, workAreaDip.Left, workAreaDip.Right - Width);
+        Y = Clamp(workAreaDip.Bottom - Height, workAreaDip.Top, workAreaDip.Bottom - Height);
     }
 
-    public void Update(double dtSeconds, double screenWidthDip, double screenHeightDip)
+    public void Update(double dtSeconds, Rect workAreaDip)
     {
-        Y = Math.Max(0, screenHeightDip - Height);
+        Y = Clamp(workAreaDip.Bottom - Height, workAreaDip.Top, workAreaDip.Bottom - Height);
 
         _stateTimeLeft -= dtSeconds;
         if (_stateTimeLeft <= 0)
@@ -60,14 +62,16 @@ public sealed class BuddyRuntime
         if (_state == BuddyState.Walk)
         {
             X += _direction * Settings.SpeedDipPerSecond * dtSeconds;
-            if (X <= 0)
+            var minX = workAreaDip.Left;
+            var maxX = workAreaDip.Right - Width;
+            if (X <= minX)
             {
-                X = 0;
+                X = minX;
                 _direction = 1;
             }
-            else if (X + Width >= screenWidthDip)
+            else if (X >= maxX)
             {
-                X = Math.Max(0, screenWidthDip - Width);
+                X = Math.Max(minX, maxX);
                 _direction = -1;
             }
         }
@@ -120,6 +124,16 @@ public sealed class BuddyRuntime
     {
         var facing = _direction >= 0 ? "right" : "left";
         return _state == BuddyState.Walk ? $"walk_{facing}" : $"idle_{facing}";
+    }
+
+    private static double Clamp(double value, double min, double max)
+    {
+        if (max < min)
+        {
+            return min;
+        }
+
+        return Math.Max(min, Math.Min(value, max));
     }
 
     private enum BuddyState

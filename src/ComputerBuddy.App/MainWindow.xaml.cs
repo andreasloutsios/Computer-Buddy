@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿using System.Diagnostics;
+﻿﻿﻿﻿﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -154,9 +154,8 @@ public partial class MainWindow : Window
 
     private void SetInitialPosition()
     {
-        var screenW = SystemParameters.PrimaryScreenWidth;
-        var screenH = SystemParameters.PrimaryScreenHeight;
-        _buddyRuntime.SetInitialPosition(screenW, screenH);
+        var workArea = SystemParameters.WorkArea;
+        _buddyRuntime.SetInitialPosition(workArea);
         Left = _buddyRuntime.X;
         Top = _buddyRuntime.Y;
     }
@@ -166,14 +165,13 @@ public partial class MainWindow : Window
         var elapsed = _stopwatch.Elapsed.TotalSeconds;
         _stopwatch.Restart();
 
-        var screenW = SystemParameters.PrimaryScreenWidth;
-        var screenH = SystemParameters.PrimaryScreenHeight;
+        var workArea = SystemParameters.WorkArea;
 
         UpdateTemporarySpeed();
 
         if (!_isDragging)
         {
-            _buddyRuntime.Update(elapsed, screenW, screenH);
+            _buddyRuntime.Update(elapsed, workArea);
 
             if (_followMouse)
             {
@@ -182,10 +180,10 @@ public partial class MainWindow : Window
                 var dx = targetX - Left;
                 var step = Math.Max(-maxStep, Math.Min(maxStep, dx));
                 var x = Left + step;
-                x = Math.Max(0, Math.Min(x, screenW - Width));
+                x = Math.Max(workArea.Left, Math.Min(x, workArea.Right - Width));
 
                 Left = x;
-                _buddyRuntime.SetPosition(Left, screenW, screenH);
+                _buddyRuntime.SetPosition(Left, workArea);
             }
             else
             {
@@ -196,7 +194,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            Top = Math.Max(0, screenH - Height);
+            Top = Math.Max(workArea.Top, workArea.Bottom - Height);
         }
 
         BuddyImage.Source = _buddyRuntime.CurrentFrame;
@@ -237,7 +235,7 @@ public partial class MainWindow : Window
             BuddyImage.ReleaseMouseCapture();
             SetGlow(_isHovering, Colors.White, 0.55);
             UpdateCursorForState();
-            _buddyRuntime.SetPosition(Left, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight);
+            _buddyRuntime.SetPosition(Left, SystemParameters.WorkArea);
             return;
         }
 
@@ -268,17 +266,16 @@ public partial class MainWindow : Window
             return;
         }
 
-        var screenW = SystemParameters.PrimaryScreenWidth;
-        var screenH = SystemParameters.PrimaryScreenHeight;
+        var workArea = SystemParameters.WorkArea;
 
         var mouseScreen = PointToScreen(e.GetPosition(this));
         var xDip = mouseScreen.X - _dragOffsetDip.X;
 
-        xDip = Math.Max(0, Math.Min(xDip, screenW - Width));
+        xDip = Math.Max(workArea.Left, Math.Min(xDip, workArea.Right - Width));
 
         Left = xDip;
-        Top = Math.Max(0, screenH - Height);
-        _buddyRuntime.SetPosition(Left, screenW, screenH);
+        Top = Math.Max(workArea.Top, workArea.Bottom - Height);
+        _buddyRuntime.SetPosition(Left, workArea);
     }
 
     private void BuddyImage_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
