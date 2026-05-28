@@ -61,29 +61,9 @@ public partial class MainWindow : Window
         await RefreshFromBuddyAsync();
     }
 
-    private async void RefreshButton_Click(object sender, RoutedEventArgs e)
-    {
-        await RefreshFromBuddyAsync();
-    }
-
     private async void StartBuddyButton_Click(object sender, RoutedEventArgs e)
     {
         await StartBuddyAndConnectAsync();
-    }
-
-    private async void ShowButton_Click(object sender, RoutedEventArgs e)
-    {
-        await SendSimpleAsync("show", new ShowBuddyRequest());
-    }
-
-    private async void HideButton_Click(object sender, RoutedEventArgs e)
-    {
-        await SendSimpleAsync("hide", new HideBuddyRequest());
-    }
-
-    private async void ToggleButton_Click(object sender, RoutedEventArgs e)
-    {
-        await SendSimpleAsync("toggle", new ToggleBuddyRequest());
     }
 
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
