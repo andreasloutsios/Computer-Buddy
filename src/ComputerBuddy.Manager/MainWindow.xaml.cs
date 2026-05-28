@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.IO.Compression;
 using System.IO.Pipes;
 using System.Text;
@@ -312,6 +312,13 @@ public partial class MainWindow : Window
 
     private static string? TryGetBuddyExePath(string slnDir)
     {
+        var baseDir = AppContext.BaseDirectory;
+        var direct = Path.Combine(baseDir, "ComputerBuddy.App.exe");
+        if (File.Exists(direct))
+        {
+            return direct;
+        }
+
         var projectDir = Path.Combine(slnDir, "src", "ComputerBuddy.App");
         var debug = Path.Combine(projectDir, "bin", "Debug", "net8.0-windows", "ComputerBuddy.App.exe");
         if (File.Exists(debug))

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Interop;
@@ -24,19 +24,26 @@ public partial class App : System.Windows.Application
     private GlobalHotkeyService? _hotkeyService;
     private UserSettings? _settings;
     private BuddyIpcServer? _ipcServer;
+    private bool _isExiting;
 
     private void Application_Startup(object sender, StartupEventArgs e)
     {
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
         _settingsService = new SettingsService();
         _settings = _settingsService.Load();
 
         _buddyWindow = new MainWindow(_settingsService, _settings);
         _buddyWindow.SourceInitialized += (_, _) => RegisterHotkey();
+        _buddyWindow.Closing += (_, args) => OnWindowClosingHide(_buddyWindow, args, isBuddy: true);
         _buddyWindow.Show();
 
         _settingsWindow = new SettingsWindow(_settingsService, _settings, _buddyWindow);
+        _settingsWindow.Closing += (_, args) => OnWindowClosingHide(_settingsWindow, args, isBuddy: false);
         _chatWindow = new ChatWindow(_settingsService, _settings);
+        _chatWindow.Closing += (_, args) => OnWindowClosingHide(_chatWindow, args, isBuddy: false);
         _systemInfoWindow = new SystemInfoWindow();
+        _systemInfoWindow.Closing += (_, args) => OnWindowClosingHide(_systemInfoWindow, args, isBuddy: false);
 
         _notifyIcon = new System.Windows.Forms.NotifyIcon
         {
@@ -52,7 +59,7 @@ public partial class App : System.Windows.Application
         menu.Items.Add("Chat", null, (_, _) => ShowChat());
         menu.Items.Add("System Info", null, (_, _) => ShowSystemInfo());
         menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());
-        menu.Items.Add("Exit", null, (_, _) => Shutdown());
+        menu.Items.Add("Exit", null, (_, _) => ExitApplication());
         _notifyIcon.ContextMenuStrip = menu;
 
         _notifyIcon.DoubleClick += (_, _) => ToggleBuddyVisibility();
@@ -67,7 +74,7 @@ public partial class App : System.Windows.Application
             toggleBuddy: () => Dispatcher.Invoke(ToggleBuddyVisibility),
             showBuddy: () => Dispatcher.Invoke(ShowBuddy),
             hideBuddy: () => Dispatcher.Invoke(HideBuddy),
-            exitBuddy: () => Dispatcher.Invoke(Shutdown));
+            exitBuddy: () => Dispatcher.Invoke(ExitApplication));
         _ipcServer.Start();
     }
 
@@ -115,6 +122,12 @@ public partial class App : System.Windows.Application
     public void HideBuddy()
     {
         _buddyWindow?.Hide();
+    }
+
+    public void ExitApplication()
+    {
+        _isExiting = true;
+        Shutdown();
     }
 
     public void OpenControlCenter()
@@ -177,6 +190,22 @@ public partial class App : System.Windows.Application
         }
 
         window.Activate();
+    }
+
+    private void OnWindowClosingHide(Window? window, System.ComponentModel.CancelEventArgs args, bool isBuddy)
+    {
+        if (window is null || _isExiting)
+        {
+            return;
+        }
+
+        args.Cancel = true;
+        window.Hide();
+
+        if (isBuddy)
+        {
+            _notifyIcon?.ShowBalloonTip(2500, "Computer Buddy", "Still running in the system tray.", System.Windows.Forms.ToolTipIcon.Info);
+        }
     }
 
     private void RegisterHotkey()
