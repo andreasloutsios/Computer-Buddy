@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Computer Buddy"
            Manufacturer="Computer Buddy"
-           Version="1.0.4"
+           Version="1.0.5"
            UpgradeCode="3D5D2511-3F7E-42D8-9D07-1A9B3C9B091D"
            InstallerVersion="500"
            Compressed="yes"
@@ -25,6 +25,8 @@
                   Execute="immediate"
                   Impersonate="yes"
                   Return="asyncNoWait" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="installer\ComputerBuddy.License.rtf" />
 
     <ui:WixUI Id="WixUI_Minimal" />
 
