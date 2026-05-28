@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿using System.Diagnostics;
+﻿﻿﻿﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -361,7 +361,7 @@ public partial class MainWindow : Window
         hide.Click += (_, _) => (System.Windows.Application.Current as App)?.ToggleBuddyVisibility();
         menu.Items.Add(hide);
 
-        var exit = new MenuItem { Header = "Exit" };
+        var exit = new MenuItem { Header = "Exit (Quit App)" };
         exit.Click += (_, _) => System.Windows.Application.Current?.Shutdown();
         menu.Items.Add(exit);
 

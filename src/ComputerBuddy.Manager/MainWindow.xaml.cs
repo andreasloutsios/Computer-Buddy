@@ -86,11 +86,6 @@ public partial class MainWindow : Window
         await SendSimpleAsync("toggle", new ToggleBuddyRequest());
     }
 
-    private async void ExitButton_Click(object sender, RoutedEventArgs e)
-    {
-        await SendSimpleAsync("exit", new ExitBuddyRequest());
-    }
-
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
         await ApplySettingsAsync(save: false);
