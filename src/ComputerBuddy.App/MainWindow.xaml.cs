@@ -1,4 +1,4 @@
-﻿﻿﻿using System.Diagnostics;
+﻿﻿﻿﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -307,7 +307,7 @@ public partial class MainWindow : Window
 
         var actions = new MenuItem { Header = "Actions" };
         var wave = new MenuItem { Header = "Wave" };
-        wave.Click += (_, _) => ShowActionPopup("👋", Colors.White);
+        wave.Click += (_, _) => PlayWaveAnimation();
         actions.Items.Add(wave);
 
         var dance = new MenuItem { Header = "Dance" };
@@ -411,7 +411,7 @@ public partial class MainWindow : Window
     {
         var emotes = new[] { "♥", "!", "?", "✨", "👍" };
         _emoteIndex = (_emoteIndex + 1) % emotes.Length;
-        ShowActionPopup(emotes[_emoteIndex], Colors.White);
+        PlayEmoteAnimation(emotes[_emoteIndex]);
     }
 
     private void PlayRandomAction()
@@ -420,14 +420,13 @@ public partial class MainWindow : Window
         switch (pick)
         {
             case 0:
-                ShowActionPopup("👋", Colors.White);
+                PlayWaveAnimation();
                 break;
             case 1:
                 PlayDanceAnimation();
                 break;
             case 2:
-                ApplyTemporarySpeed(0, TimeSpan.FromSeconds(10));
-                ShowActionPopup("Zzz", Colors.White);
+                PlaySleepAnimation();
                 break;
             default:
                 ShowNextEmote();
@@ -493,6 +492,137 @@ public partial class MainWindow : Window
         _scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, pulse);
         _scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, pulse);
         ShowActionPopup("✨", Colors.White);
+    }
+
+    private void PlayWaveAnimation()
+    {
+        if (_isDragging)
+        {
+            return;
+        }
+
+        ClearBuddyAnimations();
+        ShowActionPopup("Wave", Colors.White);
+
+        var sb = new Storyboard();
+
+        var bob = new DoubleAnimationUsingKeyFrames
+        {
+            Duration = TimeSpan.FromMilliseconds(180),
+            RepeatBehavior = new RepeatBehavior(6),
+            FillBehavior = FillBehavior.Stop
+        };
+        bob.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+        bob.KeyFrames.Add(new EasingDoubleKeyFrame(-6, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(90))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+        bob.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(180))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn } });
+        Storyboard.SetTarget(bob, _translateTransform);
+        Storyboard.SetTargetProperty(bob, new PropertyPath(TranslateTransform.YProperty));
+        sb.Children.Add(bob);
+
+        var waveTilt = new DoubleAnimationUsingKeyFrames
+        {
+            Duration = TimeSpan.FromMilliseconds(180),
+            RepeatBehavior = new RepeatBehavior(6),
+            FillBehavior = FillBehavior.Stop
+        };
+        waveTilt.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+        waveTilt.KeyFrames.Add(new EasingDoubleKeyFrame(10, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(45))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut } });
+        waveTilt.KeyFrames.Add(new EasingDoubleKeyFrame(-8, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(90))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut } });
+        waveTilt.KeyFrames.Add(new EasingDoubleKeyFrame(8, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(135))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut } });
+        waveTilt.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(180))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+        Storyboard.SetTarget(waveTilt, _rotateTransform);
+        Storyboard.SetTargetProperty(waveTilt, new PropertyPath(RotateTransform.AngleProperty));
+        sb.Children.Add(waveTilt);
+
+        StartCleanStoryboard(sb);
+    }
+
+    private void PlaySleepAnimation()
+    {
+        if (_isDragging)
+        {
+            return;
+        }
+
+        ApplyTemporarySpeed(0, TimeSpan.FromSeconds(10));
+        ClearBuddyAnimations();
+        ShowActionPopup("Sleeping", Colors.White);
+
+        var sb = new Storyboard();
+
+        var droop = new DoubleAnimation(0, 8, TimeSpan.FromMilliseconds(700))
+        {
+            AutoReverse = true,
+            RepeatBehavior = new RepeatBehavior(6),
+            FillBehavior = FillBehavior.Stop,
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+        };
+        Storyboard.SetTarget(droop, _translateTransform);
+        Storyboard.SetTargetProperty(droop, new PropertyPath(TranslateTransform.YProperty));
+        sb.Children.Add(droop);
+
+        var tilt = new DoubleAnimation(-6, 6, TimeSpan.FromMilliseconds(1200))
+        {
+            AutoReverse = true,
+            RepeatBehavior = new RepeatBehavior(3),
+            FillBehavior = FillBehavior.Stop,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        };
+        Storyboard.SetTarget(tilt, _rotateTransform);
+        Storyboard.SetTargetProperty(tilt, new PropertyPath(RotateTransform.AngleProperty));
+        sb.Children.Add(tilt);
+
+        StartCleanStoryboard(sb);
+    }
+
+    private void PlayEmoteAnimation(string emote)
+    {
+        if (_isDragging)
+        {
+            return;
+        }
+
+        ClearBuddyAnimations();
+        ShowActionPopup(emote, Colors.White);
+
+        var sb = new Storyboard();
+
+        var bounce = new DoubleAnimationUsingKeyFrames
+        {
+            Duration = TimeSpan.FromMilliseconds(220),
+            RepeatBehavior = new RepeatBehavior(2),
+            FillBehavior = FillBehavior.Stop
+        };
+        bounce.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(0))));
+        bounce.KeyFrames.Add(new EasingDoubleKeyFrame(-10, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(110))) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+        bounce.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(220))) { EasingFunction = new BounceEase { Bounces = 2, Bounciness = 2, EasingMode = EasingMode.EaseOut } });
+        Storyboard.SetTarget(bounce, _translateTransform);
+        Storyboard.SetTargetProperty(bounce, new PropertyPath(TranslateTransform.YProperty));
+        sb.Children.Add(bounce);
+
+        var pop = new DoubleAnimation(1, 1.08, TimeSpan.FromMilliseconds(110))
+        {
+            AutoReverse = true,
+            RepeatBehavior = new RepeatBehavior(2),
+            FillBehavior = FillBehavior.Stop,
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+        Storyboard.SetTarget(pop, _scaleTransform);
+        Storyboard.SetTargetProperty(pop, new PropertyPath(ScaleTransform.ScaleXProperty));
+        sb.Children.Add(pop);
+
+        var popY = new DoubleAnimation(1, 1.08, TimeSpan.FromMilliseconds(110))
+        {
+            AutoReverse = true,
+            RepeatBehavior = new RepeatBehavior(2),
+            FillBehavior = FillBehavior.Stop,
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+        };
+        Storyboard.SetTarget(popY, _scaleTransform);
+        Storyboard.SetTargetProperty(popY, new PropertyPath(ScaleTransform.ScaleYProperty));
+        sb.Children.Add(popY);
+
+        StartCleanStoryboard(sb);
     }
 
     private void PlayCookieAnimation()
