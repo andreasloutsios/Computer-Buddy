@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private readonly BuddyIpcClient _client = new();
     private UserSettingsDto? _current;
     private static readonly Option[] HotkeyKeys = BuildHotkeyKeys();
+    private DateTimeOffset? _lastConnectedAt;
 
     public MainWindow()
     {
@@ -97,7 +98,7 @@ public partial class MainWindow : Window
 
     private async void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
-        await RefreshFromBuddyAsync();
+        await ConnectAsync();
     }
 
     private async void StartBuddyButton_Click(object sender, RoutedEventArgs e)
@@ -240,15 +241,35 @@ public partial class MainWindow : Window
 
     private async Task RefreshFromBuddyAsync()
     {
+        await ConnectAsync();
+    }
+
+    private async Task ConnectAsync()
+    {
         StatusText.Text = "Connecting...";
-        var resp = await _client.SendAsync(new IpcRequest("get_settings"), CancellationToken.None);
-        if (resp.Error is not null)
+
+        IpcResponse? lastResp = null;
+        for (var attempt = 0; attempt < 6; attempt++)
         {
-            StatusText.Text = $"Not connected: {resp.Error}";
+            if (attempt > 0)
+            {
+                await Task.Delay(250);
+            }
+
+            lastResp = await _client.SendAsync(new IpcRequest("get_settings"), CancellationToken.None);
+            if (lastResp.Error is null)
+            {
+                break;
+            }
+        }
+
+        if (lastResp is null || lastResp.Error is not null)
+        {
+            StatusText.Text = $"Not connected: {lastResp?.Error ?? "Buddy is not running."}";
             return;
         }
 
-        var json = JsonSerializer.Serialize(resp.Data, BuddyIpcJson.Options);
+        var json = JsonSerializer.Serialize(lastResp.Data, BuddyIpcJson.Options);
         var data = JsonSerializer.Deserialize<GetSettingsResponse>(json, BuddyIpcJson.Options);
         if (data is null)
         {
@@ -258,7 +279,8 @@ public partial class MainWindow : Window
 
         _current = data.Settings;
         ApplyDtoToUi(_current);
-        StatusText.Text = "Connected.";
+        _lastConnectedAt = DateTimeOffset.Now;
+        StatusText.Text = $"Connected ({_lastConnectedAt:HH:mm:ss}).";
     }
 
     private async Task StartBuddyAndConnectAsync()
