@@ -151,7 +151,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <GroupBox Header="Basics">
@@ -190,6 +189,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -247,25 +247,25 @@
                                                 Background="{Binding Text, ElementName=AccentColorTextBox, Converter={StaticResource HexBrush}}" />
                                         <TextBox x:Name="AccentColorTextBox" Width="240" Margin="10,0,0,0" />
                                     </StackPanel>
-                                </Grid>
-                            </GroupBox>
 
-                            <GroupBox Grid.Row="2" Header="Sprite sheet (paths)">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="180" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="PNG path" VerticalAlignment="Center" />
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="PngPathTextBox" />
-
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="JSON path" VerticalAlignment="Center" Margin="0,8,0,0" />
-                                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="JsonPathTextBox" Margin="0,8,0,0" />
+                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="Palette" VerticalAlignment="Top" Margin="0,12,0,0" />
+                                    <StackPanel Grid.Row="9" Grid.Column="1" Margin="0,12,0,0">
+                                        <ComboBox x:Name="PaletteTargetComboBox" Width="220" HorizontalAlignment="Left" />
+                                        <WrapPanel Margin="0,8,0,0">
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#F2C9A0" BorderBrush="#22000000" BorderThickness="1" Tag="#F2C9A0" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#DFA37F" BorderBrush="#22000000" BorderThickness="1" Tag="#DFA37F" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#B96E4D" BorderBrush="#22000000" BorderThickness="1" Tag="#B96E4D" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#000000" BorderBrush="#22000000" BorderThickness="1" Tag="#000000" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#FFFFFF" BorderBrush="#22000000" BorderThickness="1" Tag="#FFFFFF" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#EF4444" BorderBrush="#22000000" BorderThickness="1" Tag="#EF4444" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#F59E0B" BorderBrush="#22000000" BorderThickness="1" Tag="#F59E0B" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#22C55E" BorderBrush="#22000000" BorderThickness="1" Tag="#22C55E" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#3B82F6" BorderBrush="#22000000" BorderThickness="1" Tag="#3B82F6" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#A855F7" BorderBrush="#22000000" BorderThickness="1" Tag="#A855F7" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#6B7280" BorderBrush="#22000000" BorderThickness="1" Tag="#6B7280" Click="PaletteColorButton_Click" />
+                                            <Button Width="26" Height="26" Margin="0,0,8,8" Background="#111827" BorderBrush="#22000000" BorderThickness="1" Tag="#111827" Click="PaletteColorButton_Click" />
+                                        </WrapPanel>
+                                    </StackPanel>
                                 </Grid>
                             </GroupBox>
                         </Grid>
@@ -282,7 +282,7 @@
 
                         <TextBlock Text="Packs" FontWeight="SemiBold" FontSize="14" />
                         <TextBlock Grid.Row="1" Foreground="#FF6B7280" Margin="0,8,0,16"
-                                   Text="Export creates a .zip with settings.json and optional sprite assets. Import extracts assets locally and applies to the buddy." />
+                                   Text="Export creates a .zip with settings.json. Import applies the settings to the buddy." />
 
                         <WrapPanel Grid.Row="2">
                             <Button x:Name="ExportPackButton" Content="Export Pack" Width="160" Margin="0,0,12,12" Click="ExportPackButton_Click" />

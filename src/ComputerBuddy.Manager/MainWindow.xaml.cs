@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using ComputerBuddy.Contracts;
 
@@ -22,11 +23,22 @@ public partial class MainWindow : Window
 
         CharacterModeComboBox.ItemsSource = new[]
         {
-            new Option("minifigure", "Minifigure builder"),
-            new Option("sprite_sheet", "Sprite sheet")
+            new Option("minifigure", "Minifigure builder")
         };
         CharacterModeComboBox.DisplayMemberPath = nameof(Option.Name);
         CharacterModeComboBox.SelectedValuePath = nameof(Option.Id);
+
+        PaletteTargetComboBox.ItemsSource = new[]
+        {
+            new Option("skin", "Skin color"),
+            new Option("shirt", "Shirt color"),
+            new Option("pants", "Pants color"),
+            new Option("hat", "Hat color"),
+            new Option("accent", "Accent color")
+        };
+        PaletteTargetComboBox.DisplayMemberPath = nameof(Option.Name);
+        PaletteTargetComboBox.SelectedValuePath = nameof(Option.Id);
+        PaletteTargetComboBox.SelectedValue = "skin";
 
         HeadComboBox.ItemsSource = new[] { new Option("smile", "Smile"), new Option("visor", "Visor") };
         HeadComboBox.DisplayMemberPath = nameof(Option.Name);
@@ -54,6 +66,33 @@ public partial class MainWindow : Window
         SpeedValue.Text = $"{SpeedSlider.Value:0}";
 
         StatusText.Text = "Not connected.";
+    }
+
+    private void PaletteColorButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button b)
+        {
+            return;
+        }
+
+        var hex = b.Tag as string;
+        if (string.IsNullOrWhiteSpace(hex))
+        {
+            return;
+        }
+
+        var target = PaletteTargetComboBox.SelectedValue as string;
+        var tb = target switch
+        {
+            "skin" => SkinColorTextBox,
+            "shirt" => ShirtColorTextBox,
+            "pants" => PantsColorTextBox,
+            "hat" => HatColorTextBox,
+            "accent" => AccentColorTextBox,
+            _ => SkinColorTextBox
+        };
+
+        tb.Text = hex.Trim();
     }
 
     private async void ConnectButton_Click(object sender, RoutedEventArgs e)
@@ -356,9 +395,6 @@ public partial class MainWindow : Window
         PantsColorTextBox.Text = dto.PantsColor;
         HatColorTextBox.Text = dto.HatColor;
         AccentColorTextBox.Text = dto.AccentColor;
-
-        PngPathTextBox.Text = dto.SpriteSheetPngPath ?? "";
-        JsonPathTextBox.Text = dto.SpriteSheetManifestPath ?? "";
     }
 
     private UserSettingsDto? BuildDtoFromUi()
@@ -387,9 +423,8 @@ public partial class MainWindow : Window
         baseDto.PantsColor = NormalizeHex(PantsColorTextBox.Text, baseDto.PantsColor);
         baseDto.HatColor = NormalizeHex(HatColorTextBox.Text, baseDto.HatColor);
         baseDto.AccentColor = NormalizeHex(AccentColorTextBox.Text, baseDto.AccentColor);
-
-        baseDto.SpriteSheetPngPath = NormalizeOptional(PngPathTextBox.Text);
-        baseDto.SpriteSheetManifestPath = NormalizeOptional(JsonPathTextBox.Text);
+        baseDto.SpriteSheetPngPath = null;
+        baseDto.SpriteSheetManifestPath = null;
 
         return baseDto;
     }

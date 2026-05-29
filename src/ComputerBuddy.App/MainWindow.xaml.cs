@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System.Diagnostics;
+﻿﻿﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -322,6 +322,18 @@ public partial class MainWindow : Window
         };
         actions.Items.Add(sleep);
 
+        var emote = new MenuItem { Header = "Next Emote" };
+        emote.Click += (_, _) => ShowNextEmote();
+        actions.Items.Add(emote);
+
+        var randomAction = new MenuItem { Header = "Random Action" };
+        randomAction.Click += (_, _) => PlayRandomAction();
+        actions.Items.Add(randomAction);
+
+        var stopAction = new MenuItem { Header = "Stop Action" };
+        stopAction.Click += (_, _) => StopCurrentAction();
+        actions.Items.Add(stopAction);
+
         var follow = new MenuItem { IsCheckable = true };
         _followMouseMenuItem = follow;
         UpdateFollowMouseMenuItem();
@@ -330,7 +342,7 @@ public partial class MainWindow : Window
         menu.Items.Add(actions);
 
         var feed = new MenuItem { Header = "Feed" };
-        var cookie = new MenuItem { Header = "Cookie" };
+        var cookie = new MenuItem { Header = "Cookie (2s)" };
         cookie.Click += (_, _) => PlayCookieAnimation();
         feed.Items.Add(cookie);
 
@@ -341,6 +353,10 @@ public partial class MainWindow : Window
         var pizza = new MenuItem { Header = "Pizza (4s)" };
         pizza.Click += (_, _) => PlayPizzaAnimation();
         feed.Items.Add(pizza);
+
+        var randomSnack = new MenuItem { Header = "Random Snack" };
+        randomSnack.Click += (_, _) => PlayRandomSnack();
+        feed.Items.Add(randomSnack);
         menu.Items.Add(feed);
 
         var control = new MenuItem { Header = "Control Center" };
@@ -396,6 +412,57 @@ public partial class MainWindow : Window
         var emotes = new[] { "♥", "!", "?", "✨", "👍" };
         _emoteIndex = (_emoteIndex + 1) % emotes.Length;
         ShowActionPopup(emotes[_emoteIndex], Colors.White);
+    }
+
+    private void PlayRandomAction()
+    {
+        var pick = Random.Shared.Next(4);
+        switch (pick)
+        {
+            case 0:
+                ShowActionPopup("👋", Colors.White);
+                break;
+            case 1:
+                PlayDanceAnimation();
+                break;
+            case 2:
+                ApplyTemporarySpeed(0, TimeSpan.FromSeconds(10));
+                ShowActionPopup("Zzz", Colors.White);
+                break;
+            default:
+                ShowNextEmote();
+                break;
+        }
+    }
+
+    private void PlayRandomSnack()
+    {
+        var pick = Random.Shared.Next(3);
+        switch (pick)
+        {
+            case 0:
+                PlayCookieAnimation();
+                break;
+            case 1:
+                PlayCoffeeAnimation();
+                break;
+            default:
+                PlayPizzaAnimation();
+                break;
+        }
+    }
+
+    private void StopCurrentAction()
+    {
+        ClearBuddyAnimations();
+        if (_tempSpeedSaved is not null)
+        {
+            _settings.SpeedDipPerSecond = _tempSpeedSaved.Value;
+            _tempSpeedSaved = null;
+            _tempSpeedUntil = null;
+        }
+
+        ShowActionPopup("OK", Colors.White);
     }
 
     private void ShowActionPopup(string text, System.Windows.Media.Color color)
