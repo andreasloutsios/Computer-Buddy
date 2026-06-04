@@ -2,7 +2,7 @@
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="Computer Buddy"
            Manufacturer="Computer Buddy"
-           Version="1.0.8"
+           Version="1.0.9"
            UpgradeCode="3D5D2511-3F7E-42D8-9D07-1A9B3C9B091D"
            InstallerVersion="500"
            Compressed="yes"
@@ -15,6 +15,8 @@
     </Feature>
 
     <Property Id="STARTWITHWINDOWS" Value="1" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/andreasloutsios/Computer-Buddy/releases/latest" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/andreasloutsios/Computer-Buddy" />
 
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Control Center" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
