@@ -17,7 +17,7 @@ public partial class MainWindow : Window
     private UserSettingsDto? _current;
     private static readonly Option[] HotkeyKeys = BuildHotkeyKeys();
     private DateTimeOffset? _lastConnectedAt;
-    private const string UpdatesUrl = "https://drive.google.com/uc?export=download&id=1wzVV_AypEbPCvKU63p39wYU_sP2UBd3d";
+    private const string UpdatesUrl = "https://drive.google.com/drive/folders/1JGNk0OqQwaXtBdpk6D7F9sY5XCiYiQB-";
 
     public MainWindow()
     {
