@@ -89,6 +89,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button x:Name="ConnectButton" Content="Connect" Width="120" Click="ConnectButton_Click" />
                     <Button x:Name="StartBuddyButton" Content="Start Buddy" Width="120" Margin="10,0,0,0" Click="StartBuddyButton_Click" />
+                    <Button x:Name="CheckUpdatesButton" Content="Check Updates" Width="140" Margin="10,0,0,0" Click="CheckUpdatesButton_Click" />
                 </StackPanel>
             </Grid>
         </Border>

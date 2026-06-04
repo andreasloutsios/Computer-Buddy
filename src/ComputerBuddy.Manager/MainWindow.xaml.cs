@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     private UserSettingsDto? _current;
     private static readonly Option[] HotkeyKeys = BuildHotkeyKeys();
     private DateTimeOffset? _lastConnectedAt;
+    private const string UpdatesUrl = "https://drive.google.com/drive/folders/1JGNk0OqQwaXtBdpk6D7F9sY5XCiYiQB-";
 
     public MainWindow()
     {
@@ -104,6 +105,22 @@ public partial class MainWindow : Window
     private async void StartBuddyButton_Click(object sender, RoutedEventArgs e)
     {
         await StartBuddyAndConnectAsync();
+    }
+
+    private void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = UpdatesUrl,
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+            StatusText.Text = "Failed to open updates link.";
+        }
     }
 
     private async void ApplyButton_Click(object sender, RoutedEventArgs e)
